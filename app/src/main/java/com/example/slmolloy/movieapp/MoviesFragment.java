@@ -23,7 +23,7 @@ public class MoviesFragment extends Fragment {
 
     private final String LOG_TAG = MoviesFragment.class.getSimpleName();
 
-    private ArrayAdapter<String> mMoviesAdapter;
+    private MovieAdapter mMoviesAdapter;
 
     public MoviesFragment() {
     }
@@ -64,11 +64,9 @@ public class MoviesFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
-        List<String> movieTitleList = new ArrayList<>();
-        mMoviesAdapter = new ArrayAdapter<>(
+        List<Movie> movieTitleList = new ArrayList<>();
+        mMoviesAdapter = new MovieAdapter(
                 getActivity(),
-                R.layout.list_item_movie,
-                R.id.list_item_movie_textview,
                 movieTitleList);
 
         GridView gv = (GridView) rootView.findViewById(R.id.gridView);
@@ -79,7 +77,7 @@ public class MoviesFragment extends Fragment {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Toast.makeText(
                             getActivity(),
-                            mMoviesAdapter.getItem(position),
+                            mMoviesAdapter.getItem(position).getTitle(),
                             Toast.LENGTH_SHORT).show();
                 }
             });

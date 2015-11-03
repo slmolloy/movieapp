@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,24 +19,24 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class FetchMovieTitlesTask extends AsyncTask<String, Void, String[]> {
+public class FetchMovieTitlesTask extends AsyncTask<String, Void, Movie[]> {
 
     private final String LOG_TAG = FetchMovieTitlesTask.class.getSimpleName();
     private Context mContext;
-    private ArrayAdapter<String> mMoviesAdapter;
+    private MovieAdapter mMoviesAdapter;
 
-    public FetchMovieTitlesTask(Context context, ArrayAdapter<String> moviesAdapter) {
+    public FetchMovieTitlesTask(Context context, MovieAdapter moviesAdapter) {
         mContext = context;
         mMoviesAdapter = moviesAdapter;
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Movie[] doInBackground(String... params) {
         if (params.length != 0) {
             return null;
         }
 
-        String[] movies = null;
+        Movie[] movies = null;
         String json = null;
 
         HttpURLConnection urlConnection = null;
@@ -87,7 +86,7 @@ public class FetchMovieTitlesTask extends AsyncTask<String, Void, String[]> {
                 return null;
             }
             json = buffer.toString();
-            movies = getMovieTitlesFromJson(json);
+            movies = getMoviesFromJson(json);
 
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(LOG_TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
@@ -112,28 +111,35 @@ public class FetchMovieTitlesTask extends AsyncTask<String, Void, String[]> {
     }
 
     @Override
-    protected void onPostExecute(String[] strings) {
-        if (strings != null) {
+    protected void onPostExecute(Movie[] movies) {
+        if (movies != null) {
             mMoviesAdapter.clear();
-            mMoviesAdapter.addAll(strings);
+            mMoviesAdapter.addAll(movies);
         }
     }
 
-    private String[] getMovieTitlesFromJson(String json)
+    private Movie[] getMoviesFromJson(String json)
             throws JSONException {
-        String[] result = null;
+        Movie[] result = null;
 
         final String MOVIE_LIST = "results";
         final String MOVIE_TITLE = "title";
+        final String MOVIE_POSTER = "poster_path";
+        final String MOVIE_ID = "id";
 
         JSONObject response = new JSONObject(json);
         JSONArray moviesArray = response.getJSONArray(MOVIE_LIST);
-        result = new String[moviesArray.length()];
+        result = new Movie[moviesArray.length()];
 
+        JSONObject jObj;
         for (int i = 0; i < moviesArray.length(); i++) {
-            result[i] = moviesArray.getJSONObject(i).getString(MOVIE_TITLE);
+            jObj = moviesArray.getJSONObject(i);
+            result[i] = new Movie(
+                    jObj.getInt(MOVIE_ID),
+                    jObj.getString(MOVIE_TITLE),
+                    jObj.getString(MOVIE_POSTER)
+            );
         }
-
         return result;
     }
 }
