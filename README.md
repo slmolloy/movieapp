@@ -5,8 +5,10 @@ Movieapp created for Udacity Developing Android Apps course project.
 
 #Install
 You will need to create and configure an API key for themoviedb.org.
+
 http://themoviedb.org
-Define a your API key as a system environment variable.
+
+Define your API key as a system environment variable.
 
 On Linux define a new file /etc/profile.d/themoviedbapikey.sh with the contents:
 ```
