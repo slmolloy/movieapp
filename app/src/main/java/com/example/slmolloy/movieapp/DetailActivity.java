@@ -1,8 +1,19 @@
 package com.example.slmolloy.movieapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -20,10 +31,77 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.detail, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch(id) {
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+            default:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     public static class DetailFragment extends Fragment {
 
         private final String LOG_TAG = DetailFragment.class.getSimpleName();
 
+        private ShareActionProvider mShareActionProvider;
+        private Movie mMovie;
 
+        public DetailFragment() {
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+            Intent intent = getActivity().getIntent();
+            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+                mMovie = new Movie(0, intent.getStringExtra(Intent.EXTRA_TEXT));
+                ((TextView) rootView.findViewById(R.id.movie_id_text_view))
+                        .setText(mMovie.getTitle());
+                getActivity().setTitle(mMovie.getTitle());
+            }
+
+            return rootView;
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.detailfragment, menu);
+
+            MenuItem menuItem = menu.findItem(R.id.action_share);
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+            setShareIntent(createShareIntent());
+        }
+
+        private void setShareIntent(Intent shareIntent) {
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(shareIntent);
+            } else {
+                Log.d(LOG_TAG, "Share Action Provider is null?");
+            }
+        }
+
+        private Intent createShareIntent() {
+            return new Intent(Intent.ACTION_SEND)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                    .setType("text/plain")
+                    .putExtra(Intent.EXTRA_TEXT, "Lets go watch a movie!");
+        }
     }
 }

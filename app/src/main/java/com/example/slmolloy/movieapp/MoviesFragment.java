@@ -1,7 +1,9 @@
 package com.example.slmolloy.movieapp;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -75,12 +77,13 @@ public class MoviesFragment extends Fragment {
             gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Toast.makeText(
-                            getActivity(),
-                            mMoviesAdapter.getItem(position).getTitle(),
-                            Toast.LENGTH_SHORT).show();
+                    Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, mMoviesAdapter.getItem(position).getTitle());
+                    startActivity(detailIntent);
                 }
             });
+
+            Log.d(LOG_TAG, "GridView Size: " + gv.getWidth() + " x " + gv.getHeight());
         }
         return rootView;
     }
