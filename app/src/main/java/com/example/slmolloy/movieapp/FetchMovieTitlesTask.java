@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class FetchMovieTitlesTask extends AsyncTask<String, Void, Movie[]> {
+public class FetchMovieTitlesTask extends AsyncTask<MovieSort, Void, Movie[]> {
 
     private final String LOG_TAG = FetchMovieTitlesTask.class.getSimpleName();
     private Context mContext;
@@ -31,8 +31,8 @@ public class FetchMovieTitlesTask extends AsyncTask<String, Void, Movie[]> {
     }
 
     @Override
-    protected Movie[] doInBackground(String... params) {
-        if (params.length != 0) {
+    protected Movie[] doInBackground(MovieSort... params) {
+        if (params.length != 1) {
             return null;
         }
 
@@ -51,6 +51,7 @@ public class FetchMovieTitlesTask extends AsyncTask<String, Void, Movie[]> {
         final String API_PARAM = "api_key";
 
         final String POP_DESC_PARAM_VAL = "popularity.desc";
+        final String VOTE_SCORE_PARAM_VAL = "vote_average.desc";
         final String THE_MOVIE_DB_API_KEY_VAL = "api_key_the_movie_db";
 
         try {
@@ -61,8 +62,17 @@ public class FetchMovieTitlesTask extends AsyncTask<String, Void, Movie[]> {
             String movieDbApi = bundle.getString(THE_MOVIE_DB_API_KEY_VAL);
 
             Uri.Builder builder = Uri.parse(URL_BASE).buildUpon()
-                    .appendQueryParameter(SORT_PARAM, POP_DESC_PARAM_VAL)
                     .appendQueryParameter(API_PARAM, movieDbApi);
+
+            switch(params[0]) {
+                case POPULARITY:
+                    builder.appendQueryParameter(SORT_PARAM, POP_DESC_PARAM_VAL);
+                    break;
+                case VOTE_SCORE:
+                    builder.appendQueryParameter(SORT_PARAM, VOTE_SCORE_PARAM_VAL);
+                    break;
+            }
+
 
             URL url = new URL(builder.build().toString());
 
@@ -126,6 +136,11 @@ public class FetchMovieTitlesTask extends AsyncTask<String, Void, Movie[]> {
         final String MOVIE_TITLE = "title";
         final String MOVIE_POSTER = "poster_path";
         final String MOVIE_ID = "id";
+        final String MOVIE_RELEASE_DATE = "release_date";
+        final String MOVIE_OVERVIEW = "overview";
+        final String MOVIE_VOTE_SCORE = "vote_average";
+        final String MOVIE_VOTE_COUNT = "vote_count";
+        final String MOVIE_POPULARITY = "popularity";
 
         JSONObject response = new JSONObject(json);
         JSONArray moviesArray = response.getJSONArray(MOVIE_LIST);
@@ -134,12 +149,16 @@ public class FetchMovieTitlesTask extends AsyncTask<String, Void, Movie[]> {
         JSONObject jObj;
         for (int i = 0; i < moviesArray.length(); i++) {
             jObj = moviesArray.getJSONObject(i);
-            result[i] = new Movie(
-                    jObj.getInt(MOVIE_ID),
-                    jObj.getString(MOVIE_TITLE),
-                    jObj.getString(MOVIE_POSTER)
-            );
+            result[i] = new Movie(jObj.getInt(MOVIE_ID));
+            result[i].setTitle(jObj.getString(MOVIE_TITLE));
+            result[i].setPoster(jObj.getString(MOVIE_POSTER));
+            result[i].setReleaseDate(jObj.getString(MOVIE_RELEASE_DATE));
+            result[i].setOverview(jObj.getString(MOVIE_OVERVIEW));
+            result[i].setVoteScore(Float.parseFloat(jObj.getString(MOVIE_VOTE_SCORE)));
+            result[i].setVoteCount(jObj.getInt(MOVIE_VOTE_COUNT));
+            result[i].setPopularity(Float.parseFloat(jObj.getString(MOVIE_POPULARITY)));
         }
         return result;
     }
 }
+
