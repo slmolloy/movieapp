@@ -58,7 +58,7 @@ public class MoviesFragment extends Fragment {
             val = PreferenceManager.getDefaultSharedPreferences(context)
                     .getString("sort", "");
             if (val != "") {
-                sortOrder = MovieSort.newInstance(Integer.parseInt(val));
+                sortOrder = MovieSort.values()[Integer.parseInt(val)];
                 Log.d(LOG_TAG, "Got sort: " + sortOrder);
             } else {
                 Log.d(LOG_TAG, "sort was blank");

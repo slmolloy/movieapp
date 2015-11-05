@@ -11,14 +11,4 @@ public enum MovieSort {
     public int getValue() {
         return value;
     }
-
-    public static MovieSort newInstance(int value) {
-        switch (value) {
-            case 0:
-                return POPULARITY;
-            case 1:
-                return VOTE_SCORE;
-        }
-        return POPULARITY;
-    }
 }
